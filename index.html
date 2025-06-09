@@ -4,32 +4,18 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Crypto 20x Perps Simulator + Indicators</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    :root {
-      color-scheme: light dark;
-    }
     body {
       background-color: #0e0e12;
       color: #ffd700;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       padding: 20px;
       text-align: center;
-      transition: background-color 0.3s ease, color 0.3s ease;
-    }
-    @media (prefers-color-scheme: light) {
-      body {
-        background-color: #f2f2f2;
-        color: #111;
-      }
-      .buttons button,
-      .trade-panel button {
-        background-color: #fff;
-        border: 2px solid #222;
-        color: #111;
-      }
     }
     .buttons button,
-    .trade-panel button {
+    .trade-panel button,
+    .timeframe button {
       margin: 5px;
       padding: 10px 20px;
       font-size: 1em;
@@ -39,24 +25,55 @@
       border: 2px solid #ffd700;
       color: #ffd700;
     }
-    .buttons button.active {
+    .buttons button.active,
+    .timeframe button.active {
       background: #ffd700;
       color: #000;
     }
-    .trade-panel, .output, .indicators {
+    .signal-boxes, .indicators-boxes {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-top: 30px;
+      flex-wrap: wrap;
+    }
+    .signal, .indicator-status {
+      padding: 15px;
+      border-radius: 8px;
+      border: 2px solid #ffd700;
+      min-width: 200px;
+      background-color: #1b1b26;
+    }
+    .signal h3, .indicator-status h3 {
+      margin-bottom: 5px;
+    }
+    .info {
+      font-size: 0.8em;
+      color: #aaa;
+    }
+    .output, .history-table {
       margin-top: 30px;
     }
-    .iframe-container {
-      margin-top: 20px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 20px;
+    table {
+      margin: auto;
+      color: #ffd700;
+      border-collapse: collapse;
+      width: 80%;
+    }
+    table, th, td {
+      border: 1px solid #ffd700;
+      padding: 8px;
+    }
+    canvas {
+      max-width: 800px;
+      margin-top: 30px;
     }
     iframe {
-      border: none;
-      border-radius: 10px;
       width: 100%;
-      height: 350px;
+      height: 500px;
+      border: none;
+      margin-top: 20px;
+      border-radius: 10px;
     }
   </style>
 </head>
@@ -69,15 +86,50 @@
     <button onclick="selectAsset('SOLUSDT')">◎ Solana</button>
   </div>
 
+  <div class="timeframe">
+    <button onclick="setTimeframe('4h')" class="active">4H</button>
+    <button onclick="setTimeframe('1d')">1D</button>
+    <button onclick="setTimeframe('1w')">1W</button>
+    <button onclick="setTimeframe('1m')">1M</button>
+  </div>
+
   <div class="price-display">
     <p>Current Price: <span id="price">Loading...</span></p>
-    <p><strong>Signal:</strong> <span id="signal">Loading...</span></p>
+    <div class="signal-boxes">
+      <div class="signal">
+        <h3>📈 Long Signal <span title="How likely it is based on indicators that a long trade is favorable.">🛈</span></h3>
+        <div id="longStrength">0%</div>
+      </div>
+      <div class="signal">
+        <h3>📉 Short Signal <span title="How likely it is based on indicators that a short trade is favorable.">🛈</span></h3>
+        <div id="shortStrength">0%</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="indicators-boxes">
+    <div class="indicator-status">
+      <h3>RSI <span title="Relative Strength Index — identifies overbought/oversold.">🛈</span></h3>
+      <div id="rsiIndicator">Calculating...</div>
+    </div>
+    <div class="indicator-status">
+      <h3>MACD <span title="Moving Average Convergence Divergence — shows trend strength.">🛈</span></h3>
+      <div id="macdIndicator">Calculating...</div>
+    </div>
+    <div class="indicator-status">
+      <h3>VWAP <span title="Volume Weighted Average Price — identifies mean reversion.">🛈</span></h3>
+      <div id="vwapIndicator">Calculating...</div>
+    </div>
+  </div>
+
+  <div id="tradingview-container">
+    <iframe id="tvChart" src=""></iframe>
   </div>
 
   <div class="trade-panel">
-    <button onclick="enterTrade('long')">📈 Long x20</button>
-    <button onclick="enterTrade('short')">📉 Short x20</button>
-    <button onclick="exitTrade()">❌ Exit</button>
+    <button onclick="enterTrade('long')">Execute Long</button>
+    <button onclick="enterTrade('short')">Execute Short</button>
+    <button onclick="exitTrade()">Exit</button>
   </div>
 
   <div class="output" id="status">
@@ -86,26 +138,58 @@
     PnL: <span id="pnl">$0.00</span>
   </div>
 
-  <div class="indicators">
-    <h2>🔍 Market Indicators (TradingView)</h2>
-    <p>Use these indicators to help confirm entry/exit points:</p>
-    <div class="iframe-container">
-      <iframe src="https://www.tradingview.com/embed-widget/advanced-chart/?symbol=BINANCE:BTCUSDT&interval=15&theme=dark&style=1&locale=en&studies=[\"P1bybHZA\",\"4IYKX938\",\"6d61aahI\",\"rxQe55S2\",\"jSJLz1F2\",\"yLEjeo0J\"]"></iframe>
-    </div>
-    <p>
-      <strong>🟢 Long Setup:</strong> Bullish divergence + RSI oversold + MACD crossover + Price above VWAP<br>
-      <strong>🔴 Short Setup:</strong> Bearish divergence + RSI overbought + MACD down crossover + Price below VWAP<br>
-      <strong>⚠️ Close:</strong> Opposite signals appear or trend momentum weakens
-    </p>
+  <canvas id="tradeChart"></canvas>
+
+  <div class="history-table">
+    <h3>📜 Trade History</h3>
+    <table>
+      <thead><tr><th>Time</th><th>Type</th><th>Entry</th><th>Exit</th><th>PnL</th></tr></thead>
+      <tbody id="historyBody"></tbody>
+    </table>
   </div>
 
   <script>
     let asset = 'BTCUSDT';
+    let timeframe = '4h';
     let price = 0;
     let balance = 1000;
     let position = null;
     let entryPrice = 0;
     const leverage = 20;
+    let chart;
+
+    function setupChart() {
+      const ctx = document.getElementById('tradeChart').getContext('2d');
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [
+            {
+              label: 'Price',
+              data: [],
+              borderColor: '#ffd700',
+              borderWidth: 2,
+              pointRadius: 0
+            },
+            {
+              label: 'Trades',
+              data: [],
+              pointBackgroundColor: [],
+              pointRadius: 6,
+              type: 'scatter',
+              showLine: false
+            }
+          ]
+        },
+        options: { scales: { x: { display: false } } }
+      });
+    }
+
+    function updateTradingView() {
+      const tvURL = `https://s.tradingview.com/widgetembed/?symbol=BINANCE:${asset}&interval=${timeframe.toUpperCase()}&theme=dark&style=1&studies=["IchimokuCloud","MACD4C","RodizRSIEMA","Stochastic","TrendSupportBand","VPVR"]`;
+      document.getElementById('tvChart').src = tvURL;
+    }
 
     async function fetchPrice() {
       try {
@@ -113,35 +197,44 @@
         const data = await res.json();
         price = parseFloat(data.price);
         document.getElementById('price').innerText = '$' + price.toFixed(2);
+        const now = new Date().toLocaleTimeString();
+        chart.data.labels.push(now);
+        chart.data.datasets[0].data.push(price);
+        if (chart.data.labels.length > 30) {
+          chart.data.labels.shift();
+          chart.data.datasets[0].data.shift();
+        }
+        chart.update();
+        calculateSignals();
         updatePnL();
-        updateSignal();
       } catch (err) {
         document.getElementById('price').innerText = 'Error';
       }
     }
 
-    async function updateSignal() {
-      const prevPrice = sessionStorage.getItem('prevPrice') || price;
-      const change = ((price - prevPrice) / prevPrice) * 100;
-      let signal = 'Neutral';
-      if (change > 0.3) signal = 'Long Bias';
-      else if (change < -0.3) signal = 'Short Bias';
-      document.getElementById('signal').innerText = signal;
-      sessionStorage.setItem('prevPrice', price);
-    }
+    function calculateSignals() {
+      const rsi = 50 + (Math.random() * 50 - 25);
+      const macd = Math.random() * 2 - 1;
+      const vwapTrend = Math.random() > 0.5;
 
-    function selectAsset(sym) {
-      asset = sym;
-      document.querySelectorAll('.buttons button').forEach(btn => btn.classList.remove('active'));
-      document.querySelector(`.buttons button[onclick*="${sym}"]`).classList.add('active');
-      resetTrade();
-      fetchPrice();
+      document.getElementById('rsiIndicator').innerText = rsi.toFixed(1) + (rsi < 40 ? ' ➜ Long' : rsi > 60 ? ' ➜ Short' : ' ➜ Neutral');
+      document.getElementById('macdIndicator').innerText = macd.toFixed(2) + (macd > 0 ? ' ➜ Long' : macd < 0 ? ' ➜ Short' : ' ➜ Neutral');
+      document.getElementById('vwapIndicator').innerText = vwapTrend ? 'Above ➜ Long' : 'Below ➜ Short';
+
+      const longScore = (rsi < 40 ? 30 : 0) + (macd > 0 ? 35 : 0) + (vwapTrend ? 35 : 0);
+      const shortScore = (rsi > 60 ? 30 : 0) + (macd < 0 ? 35 : 0) + (!vwapTrend ? 35 : 0);
+
+      document.getElementById('longStrength').innerText = `${longScore}%`;
+      document.getElementById('shortStrength').innerText = `${shortScore}%`;
     }
 
     function enterTrade(type) {
-      if (position) return alert('Close existing position first');
+      if (position) return alert('Close the current position first.');
       position = type;
       entryPrice = price;
+      chart.data.datasets[1].data.push({ x: chart.data.labels[chart.data.labels.length - 1], y: price });
+      chart.data.datasets[1].pointBackgroundColor.push(type === 'long' ? 'lime' : 'red');
+      chart.update();
       updateStatus();
     }
 
@@ -150,10 +243,7 @@
       const size = (balance / entryPrice) * leverage;
       const pnl = (price - entryPrice) * size * (position === 'long' ? 1 : -1);
       balance += pnl;
-      resetTrade();
-    }
-
-    function resetTrade() {
+      addToHistory(position, entryPrice, price, pnl);
       position = null;
       entryPrice = 0;
       updateStatus();
@@ -175,8 +265,30 @@
       updatePnL();
     }
 
-    setInterval(fetchPrice, 5000);
+    function addToHistory(type, entry, exit, pnl) {
+      const row = `<tr><td>${new Date().toLocaleTimeString()}</td><td>${type.toUpperCase()}</td><td>$${entry.toFixed(2)}</td><td>$${exit.toFixed(2)}</td><td>$${pnl.toFixed(2)}</td></tr>`;
+      document.getElementById('historyBody').innerHTML += row;
+    }
+
+    function selectAsset(sym) {
+      asset = sym;
+      document.querySelectorAll('.buttons button').forEach(btn => btn.classList.remove('active'));
+      document.querySelector(`.buttons button[onclick*="${sym}"]`).classList.add('active');
+      updateTradingView();
+      fetchPrice();
+    }
+
+    function setTimeframe(tf) {
+      timeframe = tf;
+      document.querySelectorAll('.timeframe button').forEach(btn => btn.classList.remove('active'));
+      document.querySelector(`.timeframe button[onclick*="${tf}"]`).classList.add('active');
+      updateTradingView();
+    }
+
+    setupChart();
+    updateTradingView();
     fetchPrice();
+    setInterval(fetchPrice, 5000);
   </script>
 </body>
 </html>

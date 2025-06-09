@@ -419,24 +419,24 @@
         </div>
         
         <div class="tradingview-container">
-          <iframe id="tvChart" class="tradingview-iframe"></iframe>
+          <iframe id="tvChart" class="tradingview-iframe" src="https://s.tradingview.com/widgetembed/?frameElementId=tradingview_76d87&symbol=BINANCE%3ABTCUSDT&interval=4H&hidesidetoolbar=1&hidetoptoolbar=1&symboledit=1&saveimage=1&toolbarbg=000000&studies=%5B%5D&hideideas=1&theme=dark&style=1&timezone=Etc%2FUTC&studies_overrides=%7B%7D&overrides=%7B%7D&enabled_features=%5B%5D&disabled_features=%5B%5D&locale=en&utm_source=localhost&utm_medium=widget&utm_campaign=chart&utm_term=BINANCE%3ABTCUSDT#%7B%22page-uri%22%3A%22localhost%22%7D"></iframe>
         </div>
       </div>
 
       <div class="trading-panel">
         <div class="price-display">
-          <div class="current-price" id="currentPrice">Loading...</div>
-          <div class="price-change" id="priceChange">-</div>
+          <div class="current-price" id="currentPrice">$67,842.50</div>
+          <div class="price-change positive" id="priceChange">+2.34% (+$1,547.82)</div>
         </div>
 
         <div class="signals-grid">
           <div class="signal-box">
             <div class="signal-title">📈 Long Signal</div>
-            <div class="signal-value" id="longSignal">0%</div>
+            <div class="signal-value" id="longSignal">73%</div>
           </div>
           <div class="signal-box">
             <div class="signal-title">📉 Short Signal</div>
-            <div class="signal-value" id="shortSignal">0%</div>
+            <div class="signal-value" id="shortSignal">27%</div>
           </div>
         </div>
 
@@ -444,19 +444,19 @@
           <h3 style="margin-bottom: 15px; color: #ffd700;">Basic Indicators</h3>
           <div class="indicator-box">
             <span class="indicator-name tooltip" data-tooltip="Relative Strength Index - Overbought/Oversold indicator">RSI (14)</span>
-            <span class="indicator-value" id="rsiValue">-</span>
+            <span class="indicator-value" id="rsiValue">58.2</span>
           </div>
           <div class="indicator-box">
             <span class="indicator-name tooltip" data-tooltip="Moving Average Convergence Divergence - Trend momentum">MACD</span>
-            <span class="indicator-value" id="macdValue">-</span>
+            <span class="indicator-value" id="macdValue">+342.5</span>
           </div>
           <div class="indicator-box">
             <span class="indicator-name tooltip" data-tooltip="Volume Weighted Average Price - Fair value indicator">VWAP</span>
-            <span class="indicator-value" id="vwapValue">-</span>
+            <span class="indicator-value" id="vwapValue">$67,234.12</span>
           </div>
           <div class="indicator-box">
             <span class="indicator-name tooltip" data-tooltip="Exponential Moving Average (20 period)">EMA(20)</span>
-            <span class="indicator-value" id="emaValue">-</span>
+            <span class="indicator-value" id="emaValue">$66,897.45</span>
           </div>
         </div>
 
@@ -594,7 +594,7 @@
       positionSize: 0,
       leverage: 20,
       priceHistory: [],
-      lastPrice: 0,
+      lastPrice: 67842.50,
       indicators: {
         rsi: [],
         macd: { line: [], signal: [], histogram: [] },
@@ -609,11 +609,18 @@
     let indicatorCharts = {};
     const tradeHistory = [];
 
-    // Crypto descriptions (Cardano removed)
+    // Crypto descriptions
     const cryptoDescriptions = {
       'BTCUSDT': 'Bitcoin (BTC) - The first and largest cryptocurrency by market cap, digital gold',
       'ETHUSDT': 'Ethereum (ETH) - Leading smart contract platform, powering DeFi and NFTs',
       'SOLUSDT': 'Solana (SOL) - High-performance blockchain known for fast transactions and low fees'
+    };
+
+    // Mock price data for different assets
+    const mockPrices = {
+      'BTCUSDT': { price: 67842.50, change: 2.34, changeAmount: 1547.82 },
+      'ETHUSDT': { price: 3456.78, change: -1.23, changeAmount: -43.21 },
+      'SOLUSDT': { price: 156.89, change: 4.56, changeAmount: 6.83 }
     };
 
     // Technical Analysis Functions
@@ -666,61 +673,27 @@
       };
     }
 
-    function calculateStochastic(highs, lows, closes, kPeriod = 14, dPeriod = 3) {
-      if (closes.length < kPeriod) return { k: 50, d: 50 };
+    function generateMockData(length = 50) {
+      const data = [];
+      let price = mockPrices[state.asset].price;
       
-      const recentHighs = highs.slice(-kPeriod);
-      const recentLows = lows.slice(-kPeriod);
-      const currentClose = closes[closes.length - 1];
-      
-      const highestHigh = Math.max(...recentHighs);
-      const lowestLow = Math.min(...recentLows);
-      
-      const k = ((currentClose - lowestLow) / (highestHigh - lowestLow)) * 100;
-      const d = k * 0.9; // Simplified D calculation
-      
-      return { k: k, d: d };
-    }
-
-    function calculateIchimoku(highs, lows, closes) {
-      const conversionPeriod = 9;
-      const basePeriod = 26;
-      const spanBPeriod = 52;
-      
-      if (closes.length < spanBPeriod) {
-        return { conversion: 0, base: 0, spanA: 0, spanB: 0 };
+      for (let i = 0; i < length; i++) {
+        price += (Math.random() - 0.5) * price * 0.02;
+        data.push(price);
       }
       
-      // Conversion Line (Tenkan-sen)
-      const conversionHigh = Math.max(...highs.slice(-conversionPeriod));
-      const conversionLow = Math.min(...lows.slice(-conversionPeriod));
-      const conversion = (conversionHigh + conversionLow) / 2;
-      
-      // Base Line (Kijun-sen)
-      const baseHigh = Math.max(...highs.slice(-basePeriod));
-      const baseLow = Math.min(...lows.slice(-basePeriod));
-      const base = (baseHigh + baseLow) / 2;
-      
-      // Leading Span A
-      const spanA = (conversion + base) / 2;
-      
-      // Leading Span B
-      const spanBHigh = Math.max(...highs.slice(-spanBPeriod));
-      const spanBLow = Math.min(...lows.slice(-spanBPeriod));
-      const spanB = (spanBHigh + spanBLow) / 2;
-      
-      return { conversion, base, spanA, spanB };
+      return data;
     }
 
     // Chart Setup Functions
     function setupIndicatorCharts() {
       const chartConfigs = [
-        { id: 'ichimokuChart', type: 'line', color: '#00ff88' },
-        { id: 'macd4cChart', type: 'bar', color: '#ff3366' },
-        { id: 'rsidivChart', type: 'line', color: '#ffd700' },
-        { id: 'stochChart', type: 'line', color: '#00ccff' },
-        { id: 'trendChart', type: 'line', color: '#ff9900' },
-        { id: 'volumeChart', type: 'bar', color: '#9966ff' }
+        { id: 'ichimokuChart', type: 'line', color: '#00ff88', label: 'Ichimoku Signal' },
+        { id: 'macd4cChart', type: 'bar', color: '#ff3366', label: 'MACD Histogram' },
+        { id: 'rsidivChart', type: 'line', color: '#ffd700', label: 'RSI' },
+        { id: 'stochChart', type: 'line', color: '#00ccff', label: 'Stochastic %K' },
+        { id: 'trendChart', type: 'line', color: '#ff9900', label: 'Trend Signal' },
+        { id: 'volumeChart', type: 'bar', color: '#9966ff', label: 'Volume Profile' }
       ];
 
       chartConfigs.forEach(config => {
@@ -728,14 +701,14 @@
         indicatorCharts[config.id] = new Chart(ctx, {
           type: config.type,
           data: {
-            labels: [],
+            labels: Array.from({length: 20}, (_, i) => `${i+1}`),
             datasets: [{
-              label: 'Indicator',
-              data: [],
+              label: config.label,
+              data: Array.from({length: 20}, () => Math.random() * 100),
               borderColor: config.color,
               backgroundColor: config.color + '20',
               borderWidth: 2,
-              pointRadius: 0,
+              pointRadius: 1,
               fill: config.type === 'bar'
             }]
           },
@@ -760,7 +733,7 @@
       });
     }
 
-    // Asset Selection (Cardano removed)
+    // Asset Selection
     function selectAsset(asset) {
       // Update active button
       document.querySelectorAll('.asset-selector .btn').forEach(btn => {
@@ -776,11 +749,11 @@
       // Update TradingView chart
       updateTradingViewChart();
       
-      // Reset price history for new asset
-      state.priceHistory = [];
+      // Update price display
+      updatePriceDisplay();
       
-      // Fetch new price data
-      fetchPrice();
+      // Update indicators
+      updateIndicators();
     }
 
     function setTimeframe(timeframe) {
@@ -792,6 +765,7 @@
       
       state.timeframe = timeframe;
       updateTradingViewChart();
+      updateIndicators();
     }
 
     function setIndicatorTimeframe(indicator, timeframe) {
@@ -802,13 +776,4 @@
       });
       event.target.classList.add('active');
       
-      // Update indicator data based on timeframe
-      updateIndicatorCharts();
-    }
-
-    function updateTradingViewChart() {
-      const symbol = state.asset;
-      const interval = state.timeframe;
-      
-      // Create TradingView widget URL
-      const widgetUrl
+      //

@@ -1,129 +1,182 @@
 <!DOCTYPE html>
-<html lang="en" >
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ChainMetricsX - Pro Perps Trading Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Crypto 20x Perps Simulator + Indicators</title>
   <style>
+    :root {
+      color-scheme: light dark;
+    }
     body {
-      margin: 0;
-      padding: 20px;
+      background-color: #0e0e12;
+      color: #ffd700;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #0d1117;
-      color: #c9d1d9;
-      line-height: 1.5;
-    }
-    h1 {
-      text-align: center;
-      color: #58a6ff;
-      margin-bottom: 10px;
-    }
-    h2 {
-      color: #58a6ff;
-      margin-bottom: 10px;
-    }
-    .container {
-      max-width: 1000px;
-      margin: auto;
-    }
-    .section {
-      margin-bottom: 50px;
-      background: #161b22;
-      border-radius: 8px;
       padding: 20px;
-      box-shadow: 0 0 15px #222;
+      text-align: center;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    @media (prefers-color-scheme: light) {
+      body {
+        background-color: #f2f2f2;
+        color: #111;
+      }
+      .buttons button,
+      .trade-panel button {
+        background-color: #fff;
+        border: 2px solid #222;
+        color: #111;
+      }
+    }
+    .buttons button,
+    .trade-panel button {
+      margin: 5px;
+      padding: 10px 20px;
+      font-size: 1em;
+      cursor: pointer;
+      border-radius: 5px;
+      background: #1b1b26;
+      border: 2px solid #ffd700;
+      color: #ffd700;
+    }
+    .buttons button.active {
+      background: #ffd700;
+      color: #000;
+    }
+    .trade-panel, .output, .indicators {
+      margin-top: 30px;
+    }
+    .iframe-container {
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
     }
     iframe {
       border: none;
+      border-radius: 10px;
       width: 100%;
-      height: 450px;
-      border-radius: 4px;
-      margin-top: 15px;
-    }
-    .instructions {
-      background: #010409cc;
-      padding: 12px 15px;
-      border-radius: 6px;
-      margin-top: 15px;
-      color: #8b949e;
-      font-size: 0.9em;
-      white-space: pre-line;
-    }
-    .footer {
-      text-align: center;
-      font-size: 0.9em;
-      color: #484f58;
-      margin-top: 80px;
-      user-select: none;
-    }
-    a {
-      color: #58a6ff;
-      text-decoration: none;
-    }
-    a:hover {
-      text-decoration: underline;
+      height: 350px;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>📊 ChainMetricsX - Pro Perpetuals Trading Dashboard</h1>
+  <h1>🚀 20x Crypto Perpetuals Trading Simulator</h1>
 
-    <div class="section">
-      <h2>1. BTCUSD Price Chart</h2>
-      <iframe src="https://www.tradingview.com/widgetembed/?frameElementId=tradingview_btc&symbol=BINANCE:BTCUSDT&interval=1D&hidesidetoolbar=1&theme=dark&style=1&timezone=Etc/UTC"></iframe>
-      <div class="instructions">
-        📌 Use price action to confirm trade setups.<br />
-        - Long Entry: Confirm strong support + bullish patterns.<br />
-        - Short Entry: Confirm resistance + bearish reversal.<br />
-        - Close positions near key pivots or reversal candle patterns.
-      </div>
-    </div>
-
-    <div class="section">
-      <h2>2. Indicator 1 - Volume Spread Analysis</h2>
-      <iframe src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=1D&hidesidetoolbar=1&theme=dark&studies=[%22KMJVA5zu%22]"></iframe>
-      <div class="instructions">
-        🔍 Volume + spread signals momentum.<br />
-        - Long when volume surges on bullish candles.<br />
-        - Short when volume spikes on bearish candles.<br />
-        - Exit if volume decreases or opposite candle forms.
-      </div>
-    </div>
-
-    <div class="section">
-      <h2>3. Indicator 2 - RSI and MACD Confluence</h2>
-      <iframe src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=1D&studies=[%22uSBR7cFa%22,%22P1bybHZA%22]&theme=dark"></iframe>
-      <div class="instructions">
-        📈 RSI oversold + MACD bullish crossover = Long signal.<br />
-        📉 RSI overbought + MACD bearish crossover = Short signal.<br />
-        Close trades on RSI neutral zone or MACD histogram fading.
-      </div>
-    </div>
-
-    <div class="section">
-      <h2>4. Indicator 3 - VWAP + Moving Averages</h2>
-      <iframe src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=1D&studies=[%22yLEjeo0J%22,%224IYKX938%22]&theme=dark"></iframe>
-      <div class="instructions">
-        🔄 Price above VWAP and MAs supports Long entries.<br />
-        🔻 Price below VWAP and MAs supports Shorts.<br />
-        Use crossovers and retests for entry/exit confirmation.
-      </div>
-    </div>
-
-    <div class="section">
-      <h2>5. Indicator 4 - Momentum & Trend Strength</h2>
-      <iframe src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=1D&studies=[%22rxQe55S2%22,%226d61aahI%22]&theme=dark"></iframe>
-      <div class="instructions">
-        ⚡ Momentum rising with trend strength confirms Long.<br />
-        ⏬ Momentum fading or divergence signals potential Short.<br />
-        Close on momentum loss or trend reversal signs.
-      </div>
-    </div>
-
-    <div class="footer">
-      Made by you • Powered by GitHub Pages • Updated daily • <a href="https://github.com/barenax/barenax.github.io" target="_blank" rel="noopener">Source Repo</a>
-    </div>
+  <div class="buttons">
+    <button onclick="selectAsset('BTCUSDT')" class="active">₿ Bitcoin</button>
+    <button onclick="selectAsset('ETHUSDT')">Ξ Ethereum</button>
+    <button onclick="selectAsset('SOLUSDT')">◎ Solana</button>
   </div>
+
+  <div class="price-display">
+    <p>Current Price: <span id="price">Loading...</span></p>
+    <p><strong>Signal:</strong> <span id="signal">Loading...</span></p>
+  </div>
+
+  <div class="trade-panel">
+    <button onclick="enterTrade('long')">📈 Long x20</button>
+    <button onclick="enterTrade('short')">📉 Short x20</button>
+    <button onclick="exitTrade()">❌ Exit</button>
+  </div>
+
+  <div class="output" id="status">
+    Balance: $<span id="balance">1000.00</span><br>
+    Position: <span id="position">None</span><br>
+    PnL: <span id="pnl">$0.00</span>
+  </div>
+
+  <div class="indicators">
+    <h2>🔍 Market Indicators (TradingView)</h2>
+    <p>Use these indicators to help confirm entry/exit points:</p>
+    <div class="iframe-container">
+      <iframe src="https://www.tradingview.com/embed-widget/advanced-chart/?symbol=BINANCE:BTCUSDT&interval=15&theme=dark&style=1&locale=en&studies=[\"P1bybHZA\",\"4IYKX938\",\"6d61aahI\",\"rxQe55S2\",\"jSJLz1F2\",\"yLEjeo0J\"]"></iframe>
+    </div>
+    <p>
+      <strong>🟢 Long Setup:</strong> Bullish divergence + RSI oversold + MACD crossover + Price above VWAP<br>
+      <strong>🔴 Short Setup:</strong> Bearish divergence + RSI overbought + MACD down crossover + Price below VWAP<br>
+      <strong>⚠️ Close:</strong> Opposite signals appear or trend momentum weakens
+    </p>
+  </div>
+
+  <script>
+    let asset = 'BTCUSDT';
+    let price = 0;
+    let balance = 1000;
+    let position = null;
+    let entryPrice = 0;
+    const leverage = 20;
+
+    async function fetchPrice() {
+      try {
+        const res = await fetch(`https://fapi.binance.com/fapi/v1/ticker/price?symbol=${asset}`);
+        const data = await res.json();
+        price = parseFloat(data.price);
+        document.getElementById('price').innerText = '$' + price.toFixed(2);
+        updatePnL();
+        updateSignal();
+      } catch (err) {
+        document.getElementById('price').innerText = 'Error';
+      }
+    }
+
+    async function updateSignal() {
+      const prevPrice = sessionStorage.getItem('prevPrice') || price;
+      const change = ((price - prevPrice) / prevPrice) * 100;
+      let signal = 'Neutral';
+      if (change > 0.3) signal = 'Long Bias';
+      else if (change < -0.3) signal = 'Short Bias';
+      document.getElementById('signal').innerText = signal;
+      sessionStorage.setItem('prevPrice', price);
+    }
+
+    function selectAsset(sym) {
+      asset = sym;
+      document.querySelectorAll('.buttons button').forEach(btn => btn.classList.remove('active'));
+      document.querySelector(`.buttons button[onclick*="${sym}"]`).classList.add('active');
+      resetTrade();
+      fetchPrice();
+    }
+
+    function enterTrade(type) {
+      if (position) return alert('Close existing position first');
+      position = type;
+      entryPrice = price;
+      updateStatus();
+    }
+
+    function exitTrade() {
+      if (!position) return;
+      const size = (balance / entryPrice) * leverage;
+      const pnl = (price - entryPrice) * size * (position === 'long' ? 1 : -1);
+      balance += pnl;
+      resetTrade();
+    }
+
+    function resetTrade() {
+      position = null;
+      entryPrice = 0;
+      updateStatus();
+    }
+
+    function updatePnL() {
+      if (!position) {
+        document.getElementById('pnl').innerText = '$0.00';
+        return;
+      }
+      const size = (balance / entryPrice) * leverage;
+      const pnl = (price - entryPrice) * size * (position === 'long' ? 1 : -1);
+      document.getElementById('pnl').innerText = '$' + pnl.toFixed(2);
+    }
+
+    function updateStatus() {
+      document.getElementById('balance').innerText = balance.toFixed(2);
+      document.getElementById('position').innerText = position ? `${position.toUpperCase()} @ $${entryPrice.toFixed(2)}` : 'None';
+      updatePnL();
+    }
+
+    setInterval(fetchPrice, 5000);
+    fetchPrice();
+  </script>
 </body>
 </html>

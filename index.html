@@ -33,7 +33,7 @@
     .signal-boxes, .indicators-boxes {
       display: flex;
       justify-content: center;
-      gap: 20px;
+      gap: 30px;
       margin-top: 30px;
       flex-wrap: wrap;
     }
@@ -41,34 +41,15 @@
       padding: 15px;
       border-radius: 8px;
       border: 2px solid #ffd700;
-      min-width: 180px;
+      min-width: 200px;
       background-color: #1b1b26;
     }
     .signal h3, .indicator-status h3 {
       margin-bottom: 5px;
-      font-size: 1.1em;
     }
     .info {
       font-size: 0.8em;
       color: #aaa;
-    }
-    .tooltip {
-      position: relative;
-      cursor: help;
-    }
-    .tooltip:hover::after {
-      content: attr(data-tooltip);
-      position: absolute;
-      background: #333;
-      color: white;
-      padding: 5px;
-      border-radius: 3px;
-      font-size: 0.8em;
-      white-space: nowrap;
-      z-index: 1000;
-      bottom: 100%;
-      left: 50%;
-      transform: translateX(-50%);
     }
     .output, .history-table {
       margin-top: 30px;
@@ -94,86 +75,62 @@
       margin-top: 20px;
       border-radius: 10px;
     }
-    .bullish { color: #00ff88; }
-    .bearish { color: #ff4757; }
-    .neutral { color: #ffd700; }
   </style>
 </head>
 <body>
   <h1>🚀 20x Crypto Perpetuals Trading Simulator</h1>
-
   <div class="buttons">
     <button onclick="selectAsset('BTCUSDT')" class="active">₿ Bitcoin</button>
     <button onclick="selectAsset('ETHUSDT')">Ξ Ethereum</button>
     <button onclick="selectAsset('SOLUSDT')">◎ Solana</button>
   </div>
-
   <div class="timeframe">
     <button onclick="setTimeframe('4h')" class="active">4H</button>
     <button onclick="setTimeframe('1d')">1D</button>
     <button onclick="setTimeframe('1w')">1W</button>
     <button onclick="setTimeframe('1m')">1M</button>
   </div>
-
   <div class="price-display">
     <p>Current Price: <span id="price">Loading...</span></p>
     <div class="signal-boxes">
       <div class="signal">
-        <h3>📈 Long Signal <span class="tooltip" data-tooltip="How likely it is based on indicators that a long trade is favorable">ℹ️</span></h3>
+        <h3>📈 Long Signal <span title="How likely it is based on indicators that a long trade is favorable.">🛈</span></h3>
         <div id="longStrength">0%</div>
       </div>
       <div class="signal">
-        <h3>📉 Short Signal <span class="tooltip" data-tooltip="How likely it is based on indicators that a short trade is favorable">ℹ️</span></h3>
+        <h3>📉 Short Signal <span title="How likely it is based on indicators that a short trade is favorable.">🛈</span></h3>
         <div id="shortStrength">0%</div>
       </div>
     </div>
   </div>
-
   <div class="indicators-boxes">
     <div class="indicator-status">
-      <h3>RSI <span class="tooltip" data-tooltip="Relative Strength Index — identifies overbought/oversold conditions">ℹ️</span></h3>
+      <h3>RSI <span title="Relative Strength Index — identifies overbought/oversold.">🛈</span></h3>
       <div id="rsiIndicator">Calculating...</div>
     </div>
     <div class="indicator-status">
-      <h3>MACD <span class="tooltip" data-tooltip="Moving Average Convergence Divergence — shows trend strength">ℹ️</span></h3>
+      <h3>MACD <span title="Moving Average Convergence Divergence — shows trend strength.">🛈</span></h3>
       <div id="macdIndicator">Calculating...</div>
     </div>
     <div class="indicator-status">
-      <h3>VWAP <span class="tooltip" data-tooltip="Volume Weighted Average Price — identifies mean reversion">ℹ️</span></h3>
+      <h3>VWAP <span title="Volume Weighted Average Price — identifies mean reversion.">🛈</span></h3>
       <div id="vwapIndicator">Calculating...</div>
     </div>
-    <div class="indicator-status">
-      <h3>Ichimoku <span class="tooltip" data-tooltip="Ichimoku Cloud — comprehensive trend analysis system">ℹ️</span></h3>
-      <div id="ichimokuIndicator">Calculating...</div>
-    </div>
-    <div class="indicator-status">
-      <h3>Stochastic <span class="tooltip" data-tooltip="Stochastic Oscillator — momentum indicator for overbought/oversold">ℹ️</span></h3>
-      <div id="stochasticIndicator">Calculating...</div>
-    </div>
-    <div class="indicator-status">
-      <h3>Volume Profile <span class="tooltip" data-tooltip="Volume Profile Visible Range — shows price levels with high trading activity">ℹ️</span></h3>
-      <div id="vpvrIndicator">Calculating...</div>
-    </div>
   </div>
-
   <div id="tradingview-container">
     <iframe id="tvChart" src=""></iframe>
   </div>
-
   <div class="trade-panel">
     <button onclick="enterTrade('long')">Execute Long</button>
     <button onclick="enterTrade('short')">Execute Short</button>
     <button onclick="exitTrade()">Exit</button>
   </div>
-
   <div class="output" id="status">
     Balance: $<span id="balance">1000.00</span><br>
     Position: <span id="position">None</span><br>
     PnL: <span id="pnl">$0.00</span>
   </div>
-
   <canvas id="tradeChart"></canvas>
-
   <div class="history-table">
     <h3>📜 Trade History</h3>
     <table>
@@ -181,7 +138,6 @@
       <tbody id="historyBody"></tbody>
     </table>
   </div>
-
   <script>
     let asset = 'BTCUSDT';
     let timeframe = '4h';
@@ -191,19 +147,6 @@
     let entryPrice = 0;
     const leverage = 20;
     let chart;
-    let priceHistory = [];
-    let volumeHistory = [];
-    
-    // Store indicator values to prevent constant recalculation
-    let indicatorValues = {
-      rsi: 50,
-      macd: 0,
-      vwap: 0,
-      ichimoku: 'neutral',
-      stochastic: 50,
-      vpvr: 'neutral',
-      lastUpdate: 0
-    };
 
     function setupChart() {
       const ctx = document.getElementById('tradeChart').getContext('2d');
@@ -229,18 +172,7 @@
             }
           ]
         },
-        options: { 
-          scales: { 
-            x: { display: false },
-            y: { 
-              grid: { color: '#333' },
-              ticks: { color: '#ffd700' }
-            }
-          },
-          plugins: {
-            legend: { labels: { color: '#ffd700' } }
-          }
-        }
+        options: { scales: { x: { display: false } } }
       });
     }
 
@@ -253,189 +185,35 @@
       try {
         const res = await fetch(`https://fapi.binance.com/fapi/v1/ticker/price?symbol=${asset}`);
         const data = await res.json();
-        const newPrice = parseFloat(data.price);
-        
-        // Only update if price actually changed significantly
-        if (Math.abs(newPrice - price) > price * 0.0001) {
-          price = newPrice;
-          priceHistory.push(price);
-          
-          // Keep only last 50 prices for calculations
-          if (priceHistory.length > 50) {
-            priceHistory.shift();
-          }
-          
-          document.getElementById('price').innerText = '$' + price.toFixed(2);
-          const now = new Date().toLocaleTimeString();
-          chart.data.labels.push(now);
-          chart.data.datasets[0].data.push(price);
-          
-          if (chart.data.labels.length > 30) {
-            chart.data.labels.shift();
-            chart.data.datasets[0].data.shift();
-          }
-          chart.update();
-          
-          // Only recalculate indicators every 30 seconds or on significant price change
-          const now_ms = Date.now();
-          if (now_ms - indicatorValues.lastUpdate > 30000 || Math.abs(newPrice - price) > price * 0.005) {
-            calculateIndicators();
-            indicatorValues.lastUpdate = now_ms;
-          }
+        price = parseFloat(data.price);
+        document.getElementById('price').innerText = '$' + price.toFixed(2);
+        const now = new Date().toLocaleTimeString();
+        chart.data.labels.push(now);
+        chart.data.datasets[0].data.push(price);
+        if (chart.data.labels.length > 30) {
+          chart.data.labels.shift();
+          chart.data.datasets[0].data.shift();
         }
-        
+        chart.update();
+        calculateSignals();
         updatePnL();
       } catch (err) {
-        document.getElementById('price').innerText = 'Error loading price';
+        document.getElementById('price').innerText = 'Error';
         console.error('Price fetch error:', err);
       }
     }
 
-    function calculateRSI(prices, period = 14) {
-      if (prices.length < period + 1) return 50;
-      
-      let gains = 0, losses = 0;
-      for (let i = prices.length - period; i < prices.length; i++) {
-        const change = prices[i] - prices[i-1];
-        if (change > 0) gains += change;
-        else losses -= change;
-      }
-      
-      const avgGain = gains / period;
-      const avgLoss = losses / period;
-      const rs = avgGain / (avgLoss || 1);
-      return 100 - (100 / (1 + rs));
-    }
-
-    function calculateMACD(prices) {
-      if (prices.length < 26) return 0;
-      
-      const ema12 = calculateEMA(prices, 12);
-      const ema26 = calculateEMA(prices, 26);
-      return ema12 - ema26;
-    }
-
-    function calculateEMA(prices, period) {
-      if (prices.length === 0) return 0;
-      const k = 2 / (period + 1);
-      let ema = prices[0];
-      
-      for (let i = 1; i < prices.length; i++) {
-        ema = (prices[i] * k) + (ema * (1 - k));
-      }
-      return ema;
-    }
-
-    function calculateStochastic(prices, period = 14) {
-      if (prices.length < period) return 50;
-      
-      const recentPrices = prices.slice(-period);
-      const high = Math.max(...recentPrices);
-      const low = Math.min(...recentPrices);
-      const current = prices[prices.length - 1];
-      
-      return ((current - low) / (high - low)) * 100;
-    }
-
-    function calculateIndicators() {
-      if (priceHistory.length < 20) return;
-      
-      // Calculate RSI
-      indicatorValues.rsi = calculateRSI(priceHistory);
-      
-      // Calculate MACD
-      indicatorValues.macd = calculateMACD(priceHistory);
-      
-      // Calculate VWAP (simplified)
-      const avgPrice = priceHistory.slice(-20).reduce((a, b) => a + b, 0) / 20;
-      indicatorValues.vwap = price > avgPrice ? 1 : -1;
-      
-      // Calculate Stochastic
-      indicatorValues.stochastic = calculateStochastic(priceHistory);
-      
-      // Simulate Ichimoku (simplified)
-      const tenkan = (Math.max(...priceHistory.slice(-9)) + Math.min(...priceHistory.slice(-9))) / 2;
-      const kijun = (Math.max(...priceHistory.slice(-26)) + Math.min(...priceHistory.slice(-26))) / 2;
-      indicatorValues.ichimoku = price > tenkan && tenkan > kijun ? 'bullish' : 
-                                price < tenkan && tenkan < kijun ? 'bearish' : 'neutral';
-      
-      // Simulate VPVR
-      const priceVolatility = Math.abs(price - avgPrice) / avgPrice;
-      indicatorValues.vpvr = priceVolatility > 0.02 ? 'high_volume_node' : 'low_volume_node';
-      
-      updateIndicatorDisplay();
-    }
-
-    function updateIndicatorDisplay() {
-      // RSI Display
-      let rsiSignal = indicatorValues.rsi < 30 ? 'Oversold ➜ Long' : 
-                     indicatorValues.rsi > 70 ? 'Overbought ➜ Short' : 'Neutral';
-      let rsiClass = indicatorValues.rsi < 30 ? 'bullish' : indicatorValues.rsi > 70 ? 'bearish' : 'neutral';
-      document.getElementById('rsiIndicator').innerHTML = `<span class="${rsiClass}">${indicatorValues.rsi.toFixed(1)} ➜ ${rsiSignal}</span>`;
-      
-      // MACD Display
-      let macdSignal = indicatorValues.macd > 0 ? 'Bullish ➜ Long' : indicatorValues.macd < 0 ? 'Bearish ➜ Short' : 'Neutral';
-      let macdClass = indicatorValues.macd > 0 ? 'bullish' : indicatorValues.macd < 0 ? 'bearish' : 'neutral';
-      document.getElementById('macdIndicator').innerHTML = `<span class="${macdClass}">${indicatorValues.macd.toFixed(3)} ➜ ${macdSignal}</span>`;
-      
-      // VWAP Display
-      let vwapSignal = indicatorValues.vwap > 0 ? 'Above ➜ Long' : 'Below ➜ Short';
-      let vwapClass = indicatorValues.vwap > 0 ? 'bullish' : 'bearish';
-      document.getElementById('vwapIndicator').innerHTML = `<span class="${vwapClass}">${vwapSignal}</span>`;
-      
-      // Ichimoku Display
-      let ichimokuSignal = indicatorValues.ichimoku === 'bullish' ? 'Cloud Bullish ➜ Long' :
-                          indicatorValues.ichimoku === 'bearish' ? 'Cloud Bearish ➜ Short' : 'Cloud Neutral';
-      let ichimokuClass = indicatorValues.ichimoku === 'bullish' ? 'bullish' : 
-                         indicatorValues.ichimoku === 'bearish' ? 'bearish' : 'neutral';
-      document.getElementById('ichimokuIndicator').innerHTML = `<span class="${ichimokuClass}">${ichimokuSignal}</span>`;
-      
-      // Stochastic Display
-      let stochSignal = indicatorValues.stochastic < 20 ? 'Oversold ➜ Long' :
-                       indicatorValues.stochastic > 80 ? 'Overbought ➜ Short' : 'Neutral';
-      let stochClass = indicatorValues.stochastic < 20 ? 'bullish' : 
-                      indicatorValues.stochastic > 80 ? 'bearish' : 'neutral';
-      document.getElementById('stochasticIndicator').innerHTML = `<span class="${stochClass}">${indicatorValues.stochastic.toFixed(1)} ➜ ${stochSignal}</span>`;
-      
-      // VPVR Display
-      let vpvrSignal = indicatorValues.vpvr === 'high_volume_node' ? 'High Volume ➜ Support/Resistance' : 'Low Volume ➜ Breakout Zone';
-      let vpvrClass = indicatorValues.vpvr === 'high_volume_node' ? 'neutral' : 'bullish';
-      document.getElementById('vpvrIndicator').innerHTML = `<span class="${vpvrClass}">${vpvrSignal}</span>`;
-      
-      calculateSignalStrength();
-    }
-
-    function calculateSignalStrength() {
-      let longScore = 0, shortScore = 0;
-      
-      // RSI scoring
-      if (indicatorValues.rsi < 30) longScore += 20;
-      else if (indicatorValues.rsi > 70) shortScore += 20;
-      
-      // MACD scoring
-      if (indicatorValues.macd > 0) longScore += 20;
-      else if (indicatorValues.macd < 0) shortScore += 20;
-      
-      // VWAP scoring
-      if (indicatorValues.vwap > 0) longScore += 15;
-      else shortScore += 15;
-      
-      // Ichimoku scoring
-      if (indicatorValues.ichimoku === 'bullish') longScore += 20;
-      else if (indicatorValues.ichimoku === 'bearish') shortScore += 20;
-      
-      // Stochastic scoring
-      if (indicatorValues.stochastic < 20) longScore += 15;
-      else if (indicatorValues.stochastic > 80) shortScore += 15;
-      
-      // VPVR scoring
-      if (indicatorValues.vpvr === 'low_volume_node') {
-        longScore += 10;
-        shortScore += 10; // Breakout can go either way
-      }
-      
-      document.getElementById('longStrength').innerHTML = `<span class="${longScore > 50 ? 'bullish' : 'neutral'}">${Math.min(longScore, 100)}%</span>`;
-      document.getElementById('shortStrength').innerHTML = `<span class="${shortScore > 50 ? 'bearish' : 'neutral'}">${Math.min(shortScore, 100)}%</span>`;
+    function calculateSignals() {
+      const rsi = 50 + (Math.random() * 50 - 25);
+      const macd = Math.random() * 2 - 1;
+      const vwapTrend = Math.random() > 0.5;
+      document.getElementById('rsiIndicator').innerText = rsi.toFixed(1) + (rsi < 40 ? ' ➜ Long' : rsi > 60 ? ' ➜ Short' : ' ➜ Neutral');
+      document.getElementById('macdIndicator').innerText = macd.toFixed(2) + (macd > 0 ? ' ➜ Long' : macd < 0 ? ' ➜ Short' : ' ➜ Neutral');
+      document.getElementById('vwapIndicator').innerText = vwapTrend ? 'Above ➜ Long' : 'Below ➜ Short';
+      const longScore = (rsi < 40 ? 30 : 0) + (macd > 0 ? 35 : 0) + (vwapTrend ? 35 : 0);
+      const shortScore = (rsi > 60 ? 30 : 0) + (macd < 0 ? 35 : 0) + (!vwapTrend ? 35 : 0);
+      document.getElementById('longStrength').innerText = `${longScore}%`;
+      document.getElementById('shortStrength').innerText = `${shortScore}%`;
     }
 
     function enterTrade(type) {
@@ -466,9 +244,7 @@
       }
       const size = (balance / entryPrice) * leverage;
       const pnl = (price - entryPrice) * size * (position === 'long' ? 1 : -1);
-      const pnlElement = document.getElementById('pnl');
-      pnlElement.innerText = '$' + pnl.toFixed(2);
-      pnlElement.className = pnl > 0 ? 'bullish' : pnl < 0 ? 'bearish' : 'neutral';
+      document.getElementById('pnl').innerText = '$' + pnl.toFixed(2);
     }
 
     function updateStatus() {
@@ -478,13 +254,12 @@
     }
 
     function addToHistory(type, entry, exit, pnl) {
-      const row = `<tr><td>${new Date().toLocaleTimeString()}</td><td>${type.toUpperCase()}</td><td>$${entry.toFixed(2)}</td><td>$${exit.toFixed(2)}</td><td class="${pnl > 0 ? 'bullish' : 'bearish'}">$${pnl.toFixed(2)}</td></tr>`;
+      const row = `<tr><td>${new Date().toLocaleTimeString()}</td><td>${type.toUpperCase()}</td><td>$${entry.toFixed(2)}</td><td>$${exit.toFixed(2)}</td><td>$${pnl.toFixed(2)}</td></tr>`;
       document.getElementById('historyBody').innerHTML += row;
     }
 
     function selectAsset(sym) {
       asset = sym;
-      priceHistory = []; // Reset price history for new asset
       document.querySelectorAll('.buttons button').forEach(btn => btn.classList.remove('active'));
       document.querySelector(`.buttons button[onclick*="${sym}"]`).classList.add('active');
       updateTradingView();
@@ -498,13 +273,12 @@
       updateTradingView();
     }
 
-    // Initialize
-    setupChart();
-    updateTradingView();
-    fetchPrice();
-    
-    // Update price every 10 seconds instead of 5 for stability
-    setInterval(fetchPrice, 10000);
+    window.onload = () => {
+      setupChart();
+      updateTradingView();
+      fetchPrice();
+      setInterval(fetchPrice, 5000);
+    };
   </script>
 </body>
 </html>

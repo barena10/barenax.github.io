@@ -402,7 +402,6 @@
       </div>
 
       <div class="timeframe-selector">
-        <button class="btn" onclick="setTimeframe('1h')">1H</button>
         <button class="btn active" onclick="setTimeframe('4h')">4H</button>
         <button class="btn" onclick="setTimeframe('1d')">1D</button>
         <button class="btn" onclick="setTimeframe('1w')">1W</button>
@@ -609,6 +608,16 @@
     let indicatorCharts = {};
     const tradeHistory = [];
 
+    // Indicator timeframes for different charts
+    const indicatorTimeframes = {
+      ichimoku: '4h',
+      macd4c: '4h',
+      rsidiv: '4h',
+      stoch: '4h',
+      trend: '4h',
+      volume: '4h'
+    };
+
     // Crypto descriptions
     const cryptoDescriptions = {
       'BTCUSDT': 'Bitcoin (BTC) - The first and largest cryptocurrency by market cap, digital gold',
@@ -673,6 +682,23 @@
       };
     }
 
+    function calculateStochastic(highs, lows, closes, kPeriod = 14, dPeriod = 3) {
+      if (closes.length < kPeriod) return { k: 50, d: 50 };
+      
+      const recentCloses = closes.slice(-kPeriod);
+      const recentHighs = highs.slice(-kPeriod);
+      const recentLows = lows.slice(-kPeriod);
+      
+      const highestHigh = Math.max(...recentHighs);
+      const lowestLow = Math.min(...recentLows);
+      const currentClose = closes[closes.length - 1];
+      
+      const k = ((currentClose - lowestLow) / (highestHigh - lowestLow)) * 100;
+      const d = k; // Simplified calculation
+      
+      return { k, d };
+    }
+
     function generateMockData(length = 50) {
       const data = [];
       let price = mockPrices[state.asset].price;
@@ -685,95 +711,74 @@
       return data;
     }
 
+    function generateIndicatorData(type, timeframe) {
+      const dataPoints = 30;
+      const data = [];
+      
+      switch (type) {
+        case 'ichimoku':
+          // Generate Ichimoku signal strength data (0-100)
+          for (let i = 0; i < dataPoints; i++) {
+            data.push(30 + Math.random() * 40 + Math.sin(i * 0.2) * 20);
+          }
+          break;
+          
+        case 'macd4c':
+          // Generate MACD histogram data (-100 to 100)
+          for (let i = 0; i < dataPoints; i++) {
+            data.push((Math.random() - 0.5) * 100 + Math.sin(i * 0.3) * 30);
+          }
+          break;
+          
+        case 'rsidiv':
+          // Generate RSI data (0-100)
+          for (let i = 0; i < dataPoints; i++) {
+            data.push(30 + Math.random() * 40 + Math.sin(i * 0.25) * 15);
+          }
+          break;
+          
+        case 'stoch':
+          // Generate Stochastic data (0-100)
+          for (let i = 0; i < dataPoints; i++) {
+            data.push(20 + Math.random() * 60 + Math.sin(i * 0.4) * 20);
+          }
+          break;
+          
+        case 'trend':
+          // Generate trend signal data (-1 to 1)
+          for (let i = 0; i < dataPoints; i++) {
+            data.push((Math.random() - 0.5) * 2 + Math.sin(i * 0.15) * 0.5);
+          }
+          break;
+          
+        case 'volume':
+          // Generate volume profile data
+          for (let i = 0; i < dataPoints; i++) {
+            data.push(Math.random() * 1000000 + 500000);
+          }
+          break;
+      }
+      
+      return data;
+    }
+
+    function generateTimeLabels(count = 30) {
+      const labels = [];
+      const now = new Date();
+      
+      for (let i = count - 1; i >= 0; i--) {
+        const time = new Date(now.getTime() - i * 4 * 60 * 60 * 1000); // 4 hours ago
+        labels.push(time.getHours().toString().padStart(2, '0') + ':00');
+      }
+      
+      return labels;
+    }
+
     // Chart Setup Functions
     function setupIndicatorCharts() {
       const chartConfigs = [
-        { id: 'ichimokuChart', type: 'line', color: '#00ff88', label: 'Ichimoku Signal' },
-        { id: 'macd4cChart', type: 'bar', color: '#ff3366', label: 'MACD Histogram' },
-        { id: 'rsidivChart', type: 'line', color: '#ffd700', label: 'RSI' },
-        { id: 'stochChart', type: 'line', color: '#00ccff', label: 'Stochastic %K' },
-        { id: 'trendChart', type: 'line', color: '#ff9900', label: 'Trend Signal' },
-        { id: 'volumeChart', type: 'bar', color: '#9966ff', label: 'Volume Profile' }
-      ];
-
-      chartConfigs.forEach(config => {
-        const ctx = document.getElementById(config.id).getContext('2d');
-        indicatorCharts[config.id] = new Chart(ctx, {
-          type: config.type,
-          data: {
-            labels: Array.from({length: 20}, (_, i) => `${i+1}`),
-            datasets: [{
-              label: config.label,
-              data: Array.from({length: 20}, () => Math.random() * 100),
-              borderColor: config.color,
-              backgroundColor: config.color + '20',
-              borderWidth: 2,
-              pointRadius: 1,
-              fill: config.type === 'bar'
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: { display: false }
-            },
-            scales: {
-              x: {
-                ticks: { color: '#ffd700', maxTicksLimit: 10 },
-                grid: { color: 'rgba(255, 215, 0, 0.1)' }
-              },
-              y: {
-                ticks: { color: '#ffd700' },
-                grid: { color: 'rgba(255, 215, 0, 0.1)' }
-              }
-            }
-          }
-        });
-      });
-    }
-
-    // Asset Selection
-    function selectAsset(asset) {
-      // Update active button
-      document.querySelectorAll('.asset-selector .btn').forEach(btn => {
-        btn.classList.remove('active');
-      });
-      event.target.classList.add('active');
-      
-      state.asset = asset;
-      
-      // Update crypto description
-      document.getElementById('cryptoDescription').textContent = cryptoDescriptions[asset];
-      
-      // Update TradingView chart
-      updateTradingViewChart();
-      
-      // Update price display
-      updatePriceDisplay();
-      
-      // Update indicators
-      updateIndicators();
-    }
-
-    function setTimeframe(timeframe) {
-      // Update active button
-      document.querySelectorAll('.timeframe-selector .btn').forEach(btn => {
-        btn.classList.remove('active');
-      });
-      event.target.classList.add('active');
-      
-      state.timeframe = timeframe;
-      updateTradingViewChart();
-      updateIndicators();
-    }
-
-    function setIndicatorTimeframe(indicator, timeframe) {
-      // Update active button for specific indicator
-      const container = event.target.closest('.indicator-chart-container');
-      container.querySelectorAll('.timeframe-btn').forEach(btn => {
-        btn.classList.remove('active');
-      });
-      event.target.classList.add('active');
-      
-      //
+        { 
+          id: 'ichimokuChart', 
+          type: 'line', 
+          color: '#00ff88', 
+          label: 'Ichimoku Signal

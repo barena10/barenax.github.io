@@ -1,58 +1,129 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" >
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ChainMetricsX - Crypto Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ChainMetricsX - Pro Perps Trading Dashboard</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background-color: #0d1117;
-      color: #c9d1d9;
       margin: 0;
       padding: 20px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #0d1117;
+      color: #c9d1d9;
+      line-height: 1.5;
     }
     h1 {
-      color: #58a6ff;
       text-align: center;
+      color: #58a6ff;
+      margin-bottom: 10px;
+    }
+    h2 {
+      color: #58a6ff;
+      margin-bottom: 10px;
+    }
+    .container {
+      max-width: 1000px;
+      margin: auto;
     }
     .section {
-      margin: 40px auto;
-      max-width: 900px;
+      margin-bottom: 50px;
+      background: #161b22;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 0 15px #222;
     }
     iframe {
       border: none;
       width: 100%;
-      height: 400px;
-      margin-top: 20px;
+      height: 450px;
+      border-radius: 4px;
+      margin-top: 15px;
+    }
+    .instructions {
+      background: #010409cc;
+      padding: 12px 15px;
+      border-radius: 6px;
+      margin-top: 15px;
+      color: #8b949e;
+      font-size: 0.9em;
+      white-space: pre-line;
     }
     .footer {
       text-align: center;
-      margin-top: 60px;
       font-size: 0.9em;
-      color: #8b949e;
+      color: #484f58;
+      margin-top: 80px;
+      user-select: none;
+    }
+    a {
+      color: #58a6ff;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
-  <h1>📊 ChainMetricsX</h1>
-  <div class="section">
-    <h2>Bitcoin Price Chart</h2>
-    <iframe src="https://www.tradingview.com/widgetembed/?frameElementId=tradingview_12345&symbol=BITSTAMP:BTCUSD&interval=1D&hidesidetoolbar=1&symboledit=1&saveimage=1&toolbarbg=F1F3F6&studies=[]&theme=dark&style=1&timezone=Etc/UTC" allowtransparency="true" scrolling="no"></iframe>
-  </div>
-  
-  <div class="section">
-    <h2>Ethereum Price Chart</h2>
-    <iframe src="https://www.tradingview.com/widgetembed/?frameElementId=tradingview_12346&symbol=BITSTAMP:ETHUSD&interval=1D&hidesidetoolbar=1&theme=dark&style=1&timezone=Etc/UTC" allowtransparency="true" scrolling="no"></iframe>
-  </div>
+  <div class="container">
+    <h1>📊 ChainMetricsX - Pro Perpetuals Trading Dashboard</h1>
 
-  <div class="section">
-    <h2>Bitcoin Dominance</h2>
-    <iframe src="https://www.tradingview.com/widgetembed/?frameElementId=tradingview_12347&symbol=CRYPTOCAP:BTC.D&interval=1D&hidesidetoolbar=1&theme=dark&style=1&timezone=Etc/UTC" allowtransparency="true" scrolling="no"></iframe>
-  </div>
+    <div class="section">
+      <h2>1. BTCUSD Price Chart</h2>
+      <iframe src="https://www.tradingview.com/widgetembed/?frameElementId=tradingview_btc&symbol=BINANCE:BTCUSDT&interval=1D&hidesidetoolbar=1&theme=dark&style=1&timezone=Etc/UTC"></iframe>
+      <div class="instructions">
+        📌 Use price action to confirm trade setups.<br />
+        - Long Entry: Confirm strong support + bullish patterns.<br />
+        - Short Entry: Confirm resistance + bearish reversal.<br />
+        - Close positions near key pivots or reversal candle patterns.
+      </div>
+    </div>
 
-  <div class="footer">
-    Made by you • Powered by GitHub Pages • Updated daily
+    <div class="section">
+      <h2>2. Indicator 1 - Volume Spread Analysis</h2>
+      <iframe src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=1D&hidesidetoolbar=1&theme=dark&studies=[%22KMJVA5zu%22]"></iframe>
+      <div class="instructions">
+        🔍 Volume + spread signals momentum.<br />
+        - Long when volume surges on bullish candles.<br />
+        - Short when volume spikes on bearish candles.<br />
+        - Exit if volume decreases or opposite candle forms.
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>3. Indicator 2 - RSI and MACD Confluence</h2>
+      <iframe src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=1D&studies=[%22uSBR7cFa%22,%22P1bybHZA%22]&theme=dark"></iframe>
+      <div class="instructions">
+        📈 RSI oversold + MACD bullish crossover = Long signal.<br />
+        📉 RSI overbought + MACD bearish crossover = Short signal.<br />
+        Close trades on RSI neutral zone or MACD histogram fading.
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>4. Indicator 3 - VWAP + Moving Averages</h2>
+      <iframe src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=1D&studies=[%22yLEjeo0J%22,%224IYKX938%22]&theme=dark"></iframe>
+      <div class="instructions">
+        🔄 Price above VWAP and MAs supports Long entries.<br />
+        🔻 Price below VWAP and MAs supports Shorts.<br />
+        Use crossovers and retests for entry/exit confirmation.
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>5. Indicator 4 - Momentum & Trend Strength</h2>
+      <iframe src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=1D&studies=[%22rxQe55S2%22,%226d61aahI%22]&theme=dark"></iframe>
+      <div class="instructions">
+        ⚡ Momentum rising with trend strength confirms Long.<br />
+        ⏬ Momentum fading or divergence signals potential Short.<br />
+        Close on momentum loss or trend reversal signs.
+      </div>
+    </div>
+
+    <div class="footer">
+      Made by you • Powered by GitHub Pages • Updated daily • <a href="https://github.com/barenax/barenax.github.io" target="_blank" rel="noopener">Source Repo</a>
+    </div>
   </div>
 </body>
 </html>

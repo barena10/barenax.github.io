@@ -399,7 +399,6 @@
         <button class="btn active" onclick="selectAsset('BTCUSDT')">₿ Bitcoin</button>
         <button class="btn" onclick="selectAsset('ETHUSDT')">Ξ Ethereum</button>
         <button class="btn" onclick="selectAsset('SOLUSDT')">◎ Solana</button>
-        <button class="btn" onclick="selectAsset('ADAUSDT')">₳ Cardano</button>
       </div>
 
       <div class="timeframe-selector">
@@ -610,12 +609,11 @@
     let indicatorCharts = {};
     const tradeHistory = [];
 
-    // Crypto descriptions
+    // Crypto descriptions (Cardano removed)
     const cryptoDescriptions = {
       'BTCUSDT': 'Bitcoin (BTC) - The first and largest cryptocurrency by market cap, digital gold',
       'ETHUSDT': 'Ethereum (ETH) - Leading smart contract platform, powering DeFi and NFTs',
-      'SOLUSDT': 'Solana (SOL) - High-performance blockchain known for fast transactions and low fees',
-      'ADAUSDT': 'Cardano (ADA) - Research-driven blockchain platform focused on sustainability'
+      'SOLUSDT': 'Solana (SOL) - High-performance blockchain known for fast transactions and low fees'
     };
 
     // Technical Analysis Functions
@@ -762,7 +760,7 @@
       });
     }
 
-    // Asset Selection
+    // Asset Selection (Cardano removed)
     function selectAsset(asset) {
       // Update active button
       document.querySelectorAll('.asset-selector .btn').forEach(btn => {
@@ -804,4 +802,13 @@
       });
       event.target.classList.add('active');
       
-      // Update indicator data based on
+      // Update indicator data based on timeframe
+      updateIndicatorCharts();
+    }
+
+    function updateTradingViewChart() {
+      const symbol = state.asset;
+      const interval = state.timeframe;
+      
+      // Create TradingView widget URL
+      const widgetUrl
